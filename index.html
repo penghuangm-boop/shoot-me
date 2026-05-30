@@ -126,6 +126,7 @@ window.addEventListener('mousedown',()=>mouse.down=true);
 window.addEventListener('mouseup',()=>mouse.down=false);
 
 // Mobile touch controls
+if(!("ontouchstart"in window)){document.getElementById("joystick").style.display="none";document.getElementById("shootZone").style.display="none";}
 const joystick=document.getElementById('joystick');
 const joystickThumb=document.getElementById('joystickThumb');
 const shootZone=document.getElementById('shootZone');
