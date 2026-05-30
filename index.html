@@ -288,19 +288,6 @@ function shoot(){
   player.lastShot=now;pShoot();
   let dx=mouse.x-W/2;
   let dy=mouse.y-H/2;
-  // Auto-aim on mobile: target nearest enemy
-  if(shootActive&&enemies.length>0){
-    let nearest=null,nd=Infinity;
-    enemies.forEach(e=>{
-      const edx=e.x-player.x,edy=e.y-player.y;
-      const d=edx*edx+edy*edy;
-      if(d<nd){nd=d;nearest={x:e.x,y:e.y};}
-    });
-    if(nearest){
-      dx=nearest.x-player.x;
-      dy=nearest.y-player.y;
-    }
-  }
   const angle=Math.atan2(dy,dx);
   const baseDmg=player.dmg*(player.dmgBoost>0?1.5:1);if(player.dmgBoost>0)player.dmgBoost--;
   const isCrit=player.critChance&&Math.random()<player.critChance;
