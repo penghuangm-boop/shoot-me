@@ -12,7 +12,7 @@ canvas{display:block;cursor:none;touch-action:none}
 .stats span{color:#ffd166;font-weight:700}
 #waveAnnounce{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#ffd166;font-size:36px;font-weight:700;pointer-events:none;opacity:0;transition:opacity .3s;text-shadow:0 0 20px rgba(255,209,102,.5);z-index:20}
 
-#upgradeModal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:30;pointer-events:all}
+#upgradeModal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:70;pointer-events:all}
 #upgradeModal.show{display:flex}
 .upgradeInner{text-align:center;color:#fff}
 .upgradeInner h2{font-size:28px;color:#ffd166;margin-bottom:8px;letter-spacing:3px}
@@ -23,7 +23,7 @@ canvas{display:block;cursor:none;touch-action:none}
 .ucard .name{font-size:14px;font-weight:700;color:#ffd166;margin-bottom:4px}
 .ucard .desc{font-size:11px;color:#999;line-height:1.4}
 .skip{color:#666;font-size:12px;margin-top:12px;cursor:pointer;text-decoration:underline}
-#gameOver{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:40;pointer-events:all;flex-direction:column}
+#gameOver{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:80;pointer-events:all;flex-direction:column}
 #gameOver.show{display:flex}
 #gameOver h2{font-size:42px;color:#e74c3c;margin-bottom:16px;letter-spacing:4px}
 #gameOver p{color:#aaa;font-size:16px;margin-bottom:8px}
@@ -389,7 +389,7 @@ function checkWaveEnd(){
   }
 }
 
-function showUpgrade(){
+function showUpgrade(){document.getElementById("joystick").style.display="none";document.getElementById("shootZone").style.display="none";
   pauseForUpgrade=true;
   const picks=pickupRandomUpgrades(3);
   const container=document.getElementById('upgradeCards');
@@ -415,7 +415,7 @@ document.getElementById('skipUpgrade').addEventListener('click',()=>{
   hideUpgrade();
 });
 
-function hideUpgrade(){
+function hideUpgrade(){if("ontouchstart"in window){document.getElementById("joystick").style.display="block";document.getElementById("shootZone").style.display="block";}
   document.getElementById('upgradeModal').classList.remove('show');
   pauseForUpgrade=false;
   startWave();
@@ -1185,7 +1185,7 @@ function restart(){
   projectiles=[];enemies=[];particles=[];drops=[];explosions=[];
   wave=1;kills=0;waveActive=false;spawnTimer=0;waveEnemies=0;spawned=0;
   pauseForUpgrade=false;shakeAmount=0;boss=null;bossWave=false;genObstacles();
-  document.getElementById("gameOver").classList.remove("show");
+  document.getElementById("gameOver").classList.remove("show");if("ontouchstart"in window){document.getElementById("joystick").style.display="block";document.getElementById("shootZone").style.display="block";}
   startWave();
 }
 document.getElementById('restartBtn').addEventListener('click',restart);
