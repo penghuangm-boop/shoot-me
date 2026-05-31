@@ -44,6 +44,7 @@ canvas{display:block;cursor:none;touch-action:none}
 <canvas id="game" style="pointer-events:none"></canvas>
 <div class="joystick" id="joystick"><div class="joystick-base"><div class="joystick-thumb" id="joystickThumb"></div></div></div>
 <div class="shoot-zone" id="shootZone"></div>
+<div class="joystick" id="aimJoystick" style="bottom:40px;right:40px;left:auto"><div class="joystick-base"><div class="joystick-thumb" id="aimThumb"></div></div></div>
 
 <script>
 
@@ -127,79 +128,64 @@ window.addEventListener('mouseup',()=>mouse.down=false);
 
 // Mobile touch controls
 if(!("ontouchstart"in window)){document.getElementById("joystick").style.display="none";document.getElementById("shootZone").style.display="none";}
+
 const joystick=document.getElementById('joystick');
 const joystickThumb=document.getElementById('joystickThumb');
-const shootZone=document.getElementById('shootZone');
 let joyActive=false,joyId=null,joyBase={x:0,y:0};
-let shootActive=false,shootId=null;
 
 function getTouchPos(e,id){
-  for(let t of e.changedTouches){
-    if(t.identifier===id) return {x:t.clientX,y:t.clientY};
-  }
+  for(let t of e.changedTouches){if(t.identifier===id)return {x:t.clientX,y:t.clientY};}
   return null;
 }
 
+// Left move joystick
 joystick.addEventListener('touchstart',e=>{
-  e.preventDefault();
-  if(joyActive) return;
-  const t=e.changedTouches[0];
-  joyId=t.identifier;
-  joyActive=true;
-  const rect=joystick.getBoundingClientRect();
-  joyBase={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
+  e.preventDefault();if(joyActive)return;
+  const t=e.changedTouches[0];joyId=t.identifier;joyActive=true;
+  const r=joystick.getBoundingClientRect();joyBase={x:r.left+r.width/2,y:r.top+r.height/2};
 });
-
 joystick.addEventListener('touchmove',e=>{
-  e.preventDefault();
-  const pos=getTouchPos(e,joyId);
-  if(!pos) return;
-  const dx=pos.x-joyBase.x,dy=pos.y-joyBase.y;
-  const dist=Math.sqrt(dx*dx+dy*dy);
-  const maxR=50;
-  const cx=Math.min(maxR,dist)*(dx/dist||0);
-  const cy=Math.min(maxR,dist)*(dy/dist||0);
+  e.preventDefault();const p=getTouchPos(e,joyId);if(!p)return;
+  const dx=p.x-joyBase.x,dy=p.y-joyBase.y,d=Math.sqrt(dx*dx+dy*dy),mx=50;
+  const cx=Math.min(mx,d)*(dx/d||0),cy=Math.min(mx,d)*(dy/d||0);
   joystickThumb.style.transform='translate(calc(-50% + '+cx+'px), calc(-50% + '+cy+'px))';
-  // Set movement keys
-  keys['w']=dy<-10;
-  keys['s']=dy>10;
-  keys['a']=dx<-10;
-  keys['d']=dx>10;
+  keys['w']=dy<-10;keys['s']=dy>10;keys['a']=dx<-10;keys['d']=dx>10;
 });
-
 joystick.addEventListener('touchend',e=>{
-  const pos=getTouchPos(e,joyId);
-  if(!pos) return;
-  joyActive=false;joyId=null;
-  joystickThumb.style.transform='translate(-50%,-50%)';
+  const p=getTouchPos(e,joyId);if(!p)return;
+  joyActive=false;joyId=null;joystickThumb.style.transform='translate(-50%,-50%)';
   keys['w']=keys['s']=keys['a']=keys['d']=false;
 });
 
-shootZone.addEventListener('touchstart',e=>{
-  e.preventDefault();
-  if(shootActive) return;
-  const t=e.changedTouches[0];
-  shootId=t.identifier;
-  shootActive=true;
+// Right aim joystick
+const aimJoystick=document.getElementById('aimJoystick');
+const aimThumb=document.getElementById('aimThumb');
+let aimActive=false,aimId=null,aimBase={x:0,y:0};
+aimJoystick.addEventListener('touchstart',e=>{
+  e.preventDefault();if(aimActive)return;
+  const t=e.changedTouches[0];aimId=t.identifier;aimActive=true;
+  const r=aimJoystick.getBoundingClientRect();aimBase={x:r.left+r.width/2,y:r.top+r.height/2};
   mouse.down=true;
-  mouse.x=t.clientX;
-  mouse.y=t.clientY;
+});
+aimJoystick.addEventListener('touchmove',e=>{
+  e.preventDefault();const p=getTouchPos(e,aimId);if(!p)return;
+  const dx=p.x-aimBase.x,dy=p.y-aimBase.y,d=Math.sqrt(dx*dx+dy*dy),mx=50;
+  const cx=Math.min(mx,d)*(dx/d||0),cy=Math.min(mx,d)*(dy/d||0);
+  aimThumb.style.transform='translate(calc(-50% + '+cx+'px), calc(-50% + '+cy+'px))';
+  mouse.x=aimBase.x+cx*5;mouse.y=aimBase.y+cy*5;mouse.down=true;
+});
+aimJoystick.addEventListener('touchend',e=>{
+  const p=getTouchPos(e,aimId);if(!p)return;
+  aimActive=false;aimId=null;aimThumb.style.transform='translate(-50%,-50%)';mouse.down=false;
 });
 
-shootZone.addEventListener('touchmove',e=>{
-  e.preventDefault();
-  const pos=getTouchPos(e,shootId);
-  if(!pos) return;
-  mouse.x=pos.x;
-  mouse.y=pos.y;
-});
+// Desktop: hide mobile controls
+if(!('ontouchstart' in window)){joystick.style.display='none';aimJoystick.style.display='none';}
 
-shootZone.addEventListener('touchend',e=>{
-  const pos=getTouchPos(e,shootId);
-  if(!pos) return;
-  shootActive=false;shootId=null;
-  mouse.down=false;
-});
+// Hide/show aim joystick during upgrade
+const _s=showUpgrade;showUpgrade=function(){aimJoystick.style.display='none';aimThumb.style.transform='translate(-50%,-50%)';mouse.down=false;aimActive=false;_s();};
+const _h=hideUpgrade;hideUpgrade=function(){_h();if('ontouchstart' in window)aimJoystick.style.display='block';};
+const _r=restart;restart=function(){_r();if('ontouchstart' in window)aimJoystick.style.display='block';};
 
 window.addEventListener('resize',()=>{
   W=canvas.width=window.innerWidth;
