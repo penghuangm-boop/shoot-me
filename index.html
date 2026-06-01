@@ -172,7 +172,7 @@ aimJoystick.addEventListener('touchmove',e=>{
   const dx=p.x-aimBase.x,dy=p.y-aimBase.y,d=Math.sqrt(dx*dx+dy*dy),mx=50;
   const cx=Math.min(mx,d)*(dx/d||0),cy=Math.min(mx,d)*(dy/d||0);
   aimThumb.style.transform='translate(calc(-50% + '+cx+'px), calc(-50% + '+cy+'px))';
-  mouse.x=aimBase.x+cx*5;mouse.y=aimBase.y+cy*5;mouse.down=true;
+  mouse.x=W/2+cx*8;mouse.y=H/2+cy*8;mouse.down=true;
 });
 aimJoystick.addEventListener('touchend',e=>{
   const p=getTouchPos(e,aimId);if(!p)return;
